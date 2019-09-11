@@ -296,6 +296,12 @@ class BasicProtocol(SessionProtocol):
 
         self.transport.getHandle()
         self.transport.write(msg_to_send)
+        logger.debug(
+            "Data sent to %s:%s - %s",
+            self.session.address,
+            self.session.port,
+            msg_to_send,
+        )
 
         return True
 
@@ -323,10 +329,21 @@ class BasicProtocol(SessionProtocol):
             logger.warning("No session argument in connection state")
             return
 
+        logger.debug(
+            "Data received from %s:%s - %s",
+            self.session.address,
+            self.session.port,
+            data,
+        )
         self._interpret(data)
 
     def connectionLost(self, reason=connectionDone):
         """Called when connection is lost (for whatever reason)"""
+        logger.debug(
+            "Connection lost - %s:%s",
+            self.session.address,
+            self.session.port
+        )
         self.opened = False
         if self.session:
             self.session.dropped()
