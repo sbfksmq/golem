@@ -297,9 +297,10 @@ class BasicProtocol(SessionProtocol):
         self.transport.getHandle()
         self.transport.write(msg_to_send)
         logger.debug(
-            "Data sent to %s:%s - %s",
+            "Data sent to %s:%s (%s bytes) - %s",
             self.session.address,
             self.session.port,
+            len(msg_to_send),
             msg_to_send,
         )
 
@@ -330,9 +331,10 @@ class BasicProtocol(SessionProtocol):
             return
 
         logger.debug(
-            "Data received from %s:%s - %s",
+            "Data received from %s:%s (%s bytes) - %s",
             self.session.address,
             self.session.port,
+            len(data),
             data,
         )
         self._interpret(data)
@@ -379,7 +381,9 @@ class BasicProtocol(SessionProtocol):
     def _data_to_messages(self):
         messages = []
 
+        logger.debug("Data in buffer: %s bytes", self.db.data_size())
         for data in self.db.get_len_prefixed_bytes():
+            logger.debug("Converting data: %s bytes, %s left", len(data), self.db.data_size())
             if len(data) > MAX_MESSAGE_SIZE:
                 logger.info(
                     'Ignoring huge message %dB from %r',
