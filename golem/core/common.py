@@ -340,6 +340,7 @@ def _patch_remove_writer(reactor):
             reactor_remove_writer(writer)
         except KeyError as err:
             logger.debug("Reactor removeWriter error: %r", err)
+            raise
 
     reactor_remove_writer = reactor.removeWriter
     reactor.removeWriter = types.MethodType(patched_remove_writer, reactor)
