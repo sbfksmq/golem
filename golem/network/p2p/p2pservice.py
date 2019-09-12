@@ -912,6 +912,7 @@ class P2PService(tcpserver.PendingConnectionsServer, DiagnosticsProvider):  # no
         for peer in list(self.peers.values()):
             delta = time.time() - peer.last_message_time
             if delta > self.last_message_time_threshold:
+                logger.debug('TIMEOUT PEER. delta=%r', delta)
                 self.remove_peer(peer)
                 peer.disconnect(
                     message.base.Disconnect.REASON.Timeout
@@ -1018,6 +1019,7 @@ class P2PService(tcpserver.PendingConnectionsServer, DiagnosticsProvider):  # no
 
     def _disconnect_random_peers(self) -> None:
         peers = list(self.peers.values())
+        logger.warning('OPT PEER NUM %r', self.config_desc.opt_peer_num)
         if len(peers) < self.config_desc.opt_peer_num:
             return
 

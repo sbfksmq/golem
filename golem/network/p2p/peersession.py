@@ -111,6 +111,7 @@ class PeerSession(BasicSafeSession):
         :param Message msg: Message to interpret and react to.
         :return None:
         """
+        logger.debug('RECEIVED %s', msg)
         self.p2p_service.set_last_message(
             "<-",
             self.key_id,
@@ -138,6 +139,7 @@ class PeerSession(BasicSafeSession):
             self.address,
             self.port
         )
+        logger.debug('SENT %s', msg)
 
     @property
     def my_private_key(self):

@@ -346,6 +346,7 @@ class BasicProtocol(SessionProtocol):
             self.session.address,
             self.session.port
         )
+        logger.warning("CONNECTION LOST %r", reason)
         self.opened = False
         if self.session:
             self.session.dropped()
