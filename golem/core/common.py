@@ -330,20 +330,23 @@ def install_reactor():
 
 
 def _patch_remove_writer(reactor):
-    import logging
+    import threading
     import types
 
-    logger = logging.getLogger('golem.core')
+    lock = threading.Lock()
 
-    def patched_remove_writer(_, writer):
-        try:
-            reactor_remove_writer(writer)
-        except KeyError as err:
-            logger.debug("Reactor removeWriter error: %r", err)
-            raise
+    def locked(lock):
+        def wrapped(f):
+            def curry(*args, **kwargs):
+                with lock:
+                    return f(*args, **kwargs)
+            return curry
+        return wrapped
 
-    reactor_remove_writer = reactor.removeWriter
-    reactor.removeWriter = types.MethodType(patched_remove_writer, reactor)
+    reactor.removeWriter = locked(lock)(reactor.removeWriter)
+    reactor.addWriter = locked(lock)(reactor.addWriter)
+    reactor.removeReader = locked(lock)(reactor.removeReader)
+    reactor.addReader = locked(lock)(reactor.addReader)
 
 
 if is_windows():
