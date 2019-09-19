@@ -3,6 +3,7 @@ import logging.config
 import os
 import subprocess
 import sys
+import threading
 from calendar import timegm
 from datetime import datetime
 from functools import wraps
@@ -11,6 +12,7 @@ from typing import Any, Callable, cast, List, TypeVar
 import pytz
 
 from golem.core import simpleenv
+from golem.decorators import locked
 
 F = TypeVar('F', bound=Callable[..., Any])
 
@@ -322,26 +324,15 @@ def install_reactor():
     asyncioreactor.install(asyncio.get_event_loop())
 
     from twisted.internet import reactor
-    _patch_remove_writer(reactor)
+    _patch_modify_io(reactor)
 
     from golem.core.variables import REACTOR_THREAD_POOL_SIZE
     reactor.suggestThreadPoolSize(REACTOR_THREAD_POOL_SIZE)
     return reactor
 
 
-def _patch_remove_writer(reactor):
-    import threading
-    import types
-
+def _patch_modify_io(reactor):
     lock = threading.Lock()
-
-    def locked(lock):
-        def wrapped(f):
-            def curry(*args, **kwargs):
-                with lock:
-                    return f(*args, **kwargs)
-            return curry
-        return wrapped
 
     reactor.removeWriter = locked(lock)(reactor.removeWriter)
     reactor.addWriter = locked(lock)(reactor.addWriter)
