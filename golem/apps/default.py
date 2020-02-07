@@ -1,10 +1,11 @@
 from pathlib import Path
 from typing import List
 
-from golem_task_api.envs import DOCKER_CPU_ENV_ID
 from pathvalidate import sanitize_filename
+from golem_task_api.apputils.app_definition import save_app_to_json_file
+from golem_task_api.envs import DOCKER_CPU_ENV_ID
 
-from golem.apps import AppId, AppDefinition, save_app_to_json_file
+from golem.apps import AppId, AppDefinition
 from golem.marketplace import RequestorBrassMarketStrategy
 
 BlenderAppDefinition = AppDefinition(
